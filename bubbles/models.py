@@ -30,7 +30,7 @@ class Arc:
     @property
     def length(self) -> float:
         if self.is_circle:
-            return 2 * math.pi * abs(self.start.position)
+            return math.tau * abs(self.start.position)
         d = abs(self.end.position - self.start.position)
         if self.is_flat:
             return d
@@ -45,6 +45,22 @@ class Arc:
             return d ** 2 * self.angle * 2 / 3
         complex_angle = cmath.rect(1, self.angle)
         return d ** 2 * (self.angle / complex_angle.imag - complex_angle.real) / complex_angle.imag
+
+    @property
+    def center(self) -> complex:
+        if self.is_circle:
+            return 0
+        # Note: no meaning if self.is_flat
+        return (self.start.position + self.end.position
+                + 1j * (self.end.position - self.start.position) / math.tan(self.angle)) / 2
+
+    def get_position(self, t: float) -> complex:
+        if self.is_circle:
+            return self.start.position * cmath.rect(1, t * math.tau)
+        if self.is_flat:
+            return self.start.position * (1 - t) + self.end.position * t
+        center = self.center
+        return center + (self.start.position - center) * cmath.rect(1, 2 * self.angle * t)
 
     def reverse(self) -> 'Arc':
         return ReversedArc(self)
@@ -74,10 +90,6 @@ class ReversedArc(Arc):
 @define
 class Bubble:
     arcs: list[Arc]  # Arcs around the bubble in trigonometric order.
-
-    def __attrs_post_init__(self):
-        for i, arc in enumerate(self.arcs):
-            assert self.arcs[(i + 1) % len(self.arcs)].start is arc.end
 
     @classmethod
     def from_nodes(cls, nodes, angles):
