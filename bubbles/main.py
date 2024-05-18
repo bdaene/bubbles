@@ -1,11 +1,13 @@
 from threading import Thread
 
+from bubbles.samples import get_sample_bubbles_4
 from bubbles.simulation import Simulation
 from bubbles.ui import UI
 
 
 def main():
-    simulation = Simulation(interval=0.001)
+    bubbles = get_sample_bubbles_4()
+    simulation = Simulation(bubbles, interval=0.01)
     ui = UI(simulation)
 
     simulation_thread = Thread(target=simulation.run, daemon=True)

@@ -32,13 +32,13 @@ def get_arc(arc: Arc, style: dict) -> patches.Patch:
 
 class UI:
 
-    def __init__(self, simulation: Simulation):
+    def __init__(self, simulation: Simulation, size=1.5):
         self.simulation = simulation
 
         figure, axes = pyplot.subplots(num="Bubbles")
         axes.set_aspect('equal')
-        axes.set_xlim(-15, 15)
-        axes.set_ylim(-15, 15)
+        axes.set_xlim(-size, size)
+        axes.set_ylim(-size, size)
         axes.set_axis_off()
 
         self.figure = figure
@@ -47,14 +47,14 @@ class UI:
         self.cord_style = dict(alpha=0.1, linewidth=1, zorder=1)
         self.arc_style = dict(linewidth=2, zorder=2)
 
-        self.animation = animation.FuncAnimation(figure, self.update, interval=1000 / 75, cache_frame_data=False)
+        self.animation = animation.FuncAnimation(figure, self.update, interval=20, cache_frame_data=False)
 
     def update(self, _frame) -> list[Artist]:
         for artist in self.artists:
             artist.remove()
         self.artists.clear()
 
-        for simulation_arc in self.simulation.arcs.values():
+        for simulation_arc in self.simulation.get_arcs():
             cord = get_cord(simulation_arc, self.cord_style)
             arc = get_arc(simulation_arc, self.arc_style)
 

@@ -13,7 +13,7 @@ class Node:
 class Arc:
     start: Node
     end: Node
-    angle: float  # Angle between the arc and the vector start->end. Clockwise. In [-pi, pi].
+    angle: float = 0.  # Angle between the arc and the vector start->end. Clockwise. In [-pi, pi].
 
     @classmethod
     def circle(cls, node: Node = Node(1)):
@@ -63,28 +63,7 @@ class Arc:
         return center + (self.start.position - center) * cmath.rect(1, 2 * self.angle * t)
 
     def reverse(self) -> 'Arc':
-        return ReversedArc(self)
-
-
-class ReversedArc(Arc):
-
-    def __init__(self, arc: Arc):
-        self.arc = arc
-
-    @property
-    def start(self):
-        return self.arc.end
-
-    @property
-    def end(self):
-        return self.arc.start
-
-    @property
-    def angle(self):
-        return -self.arc.angle
-
-    def reverse(self) -> Arc:
-        return self.arc
+        return Arc(self.end, self.start, -self.angle)
 
 
 @define
