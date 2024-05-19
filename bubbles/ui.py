@@ -48,20 +48,28 @@ class UI:
         self.arc_style = dict(linewidth=2, zorder=2)
 
         self.animation = animation.FuncAnimation(figure, self.update, interval=20, cache_frame_data=False)
+        self.figure.canvas.mpl_connect('pick_event', self.on_pick)
 
     def update(self, _frame) -> list[Artist]:
         for artist in self.artists:
             artist.remove()
         self.artists.clear()
 
-        for simulation_arc in self.simulation.get_arcs():
-            cord = get_cord(simulation_arc, self.cord_style)
-            arc = get_arc(simulation_arc, self.arc_style)
+        for bubble in self.simulation.get_bubbles():
+            for simulation_arc in bubble.arcs:
+                cord = get_cord(simulation_arc, self.cord_style)
+                arc = get_arc(simulation_arc, self.arc_style)
+                arc.arc = simulation_arc
+                arc.set_picker(True)
 
-            self.artists.append(self.axes.add_patch(cord))
-            self.artists.append(self.axes.add_patch(arc))
+                self.artists.append(self.axes.add_patch(cord))
+                self.artists.append(self.axes.add_patch(arc))
 
         return self.artists
+
+    def on_pick(self, event):
+        if hasattr(event.artist, 'arc'):
+            self.simulation.split(event.artist.arc)
 
     @staticmethod
     def show():
