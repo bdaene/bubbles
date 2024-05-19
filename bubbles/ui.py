@@ -1,5 +1,6 @@
 import cmath
 import math
+from time import sleep
 
 import numpy
 from matplotlib import patches, pyplot, animation
@@ -47,8 +48,7 @@ class UI:
         self.cord_style = dict(alpha=0.1, linewidth=1, zorder=1)
         self.arc_style = dict(linewidth=2, zorder=2)
 
-        self.animation = animation.FuncAnimation(figure, self.update, interval=20, cache_frame_data=False)
-        self.figure.canvas.mpl_connect('pick_event', self.on_pick)
+        self.interval = 0
 
     def update(self, _frame) -> list[Artist]:
         for artist in self.artists:
@@ -65,12 +65,21 @@ class UI:
                 self.artists.append(self.axes.add_patch(cord))
                 self.artists.append(self.axes.add_patch(arc))
 
+        sleep(self.interval)
+
         return self.artists
 
     def on_pick(self, event):
         if hasattr(event.artist, 'arc'):
             self.simulation.split(event.artist.arc)
 
-    @staticmethod
-    def show():
-        pyplot.show()
+    def run(self, fps: int, save_duration: float | None = None):
+        if save_duration is None:
+            self.figure.canvas.mpl_connect('pick_event', self.on_pick)
+            movie = animation.FuncAnimation(self.figure, self.update, interval=1000 / fps, cache_frame_data=False)
+            pyplot.show()
+        else:
+            self.interval = 1 / fps
+            movie = animation.FuncAnimation(self.figure, self.update, frames=round(fps * save_duration))
+            writer = animation.PillowWriter(fps=fps)
+            movie.save('bubbles.gif', writer=writer)

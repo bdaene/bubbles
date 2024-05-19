@@ -6,14 +6,14 @@ from bubbles.ui import UI
 
 
 def main():
-    bubbles = get_sample_bubbles(3)
+    bubbles = get_sample_bubbles(4)
     simulation = Simulation(bubbles, interval=0.01)
     ui = UI(simulation)
 
     simulation_thread = Thread(target=simulation.run, daemon=True)
     simulation_thread.start()
 
-    ui.show()
+    ui.run(fps=25)
     simulation.stop()
 
 
